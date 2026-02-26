@@ -1,4 +1,4 @@
-# ZURU Melon 公司助手
+# InsightForge
 
 一個基於 **Agentic AI** 和 **RAG (Retrieval-Augmented Generation)** 技術構建的智能公司助手系統。此系統能夠回答公司內部相關問題（基於本地知識庫）和一般知識問題（基於網絡搜索），同時確保所有回應符合公司政策和倫理規範。
 
