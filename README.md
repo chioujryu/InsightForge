@@ -7,6 +7,7 @@
 - 📚 **知識庫檢索**：搜索公司政策、編碼標準和程序
 - 🌐 **網絡搜索**：訪問外部和最新信息
 - 💡 **智能路由**：自動選擇最佳數據源
+- 📊 **數據分析與視覺化**：自動生成分析圖表（直方圖、箱型圖、散點圖、相關性熱力圖）
 - 🛡️ **安全與合規**：過濾有害內容並確保政策合規
 - 💬 **CLI 界面**：用戶友好的命令行界面
 
@@ -75,6 +76,9 @@ pip install -r requirements.txt
 - `rich` - 終端機格式化
 - `duckduckgo-search` - 網絡搜索
 - `python-dotenv` - 環境變數管理
+- `matplotlib` - 圖表繪製
+- `seaborn` - 統計圖表美化
+- `pandas` - 數據處理和分析
 - 以及其他依賴項...
 
 **注意**：首次安裝可能需要幾分鐘時間。
@@ -178,15 +182,51 @@ python cli.py
   - 📚 **知識庫** - 來自公司文件的信息
   - 🌐 **網絡搜索** - 來自網絡搜索的信息
   - 💡 **內在知識** - 來自 AI 訓練數據的信息
+  - 📊 **數據分析** - 來自數據分析模組的信息
   - 🚫 **安全過濾** - 查詢已被阻止
+- **圖表文件**：如果查詢生成了圖表，會顯示圖表保存路徑
 
-#### 3. 特殊命令
+#### 3. 數據分析與圖表生成
+
+系統支持對加密貨幣數據進行分析和視覺化。您可以通過自然語言查詢或 CLI 命令來生成圖表。
+
+**自然語言查詢範例：**
+```
+您: 請畫出 market_cap 跟 market_cap_rank 的關係
+您: 畫出 current_price 的分佈圖
+您: 請生成相關性熱力圖
+您: 繪製市值與交易量的散點圖
+```
+
+**CLI 命令模式：**
+```
+您: crypto info                    # 查看數據集概要
+您: crypto columns                 # 列出所有欄位名稱
+您: crypto suggest current_price   # 獲取欄位分析建議
+您: crypto plot hist current_price # 繪製直方圖
+您: crypto plot box market_cap     # 繪製箱型圖
+您: crypto plot scatter market_cap total_volume  # 繪製散點圖
+```
+
+**支持的圖表類型：**
+- **直方圖（Histogram）**：觀察單一數值欄位的分佈
+- **箱型圖（Boxplot）**：觀察中位數、四分位數和異常值
+- **散點圖（Scatter Plot）**：觀察兩個數值欄位之間的關係
+- **相關性熱力圖（Correlation Heatmap）**：視覺化所有數值欄位之間的相關係數
+
+**圖表輸出：**
+- 所有圖表會自動保存為 PNG 格式
+- 圖表文件保存在 `Agents/Database/crypto_plots/` 目錄
+- 系統會在回應中顯示圖表的完整路徑
+
+#### 4. 特殊命令
 
 | 命令 | 說明 |
 |------|------|
 | `help` | 顯示幫助信息 |
 | `quit` 或 `exit` | 退出程序 |
 | `Ctrl+C` | 中斷當前查詢或退出 |
+| `crypto help` | 顯示數據分析相關命令幫助 |
 
 ### 回應時間
 
@@ -235,7 +275,29 @@ python cli.py
 您: API 設計的最佳實踐是什麼？
 ```
 
-### 3. 複雜查詢（結合多個來源）
+### 3. 數據分析與圖表生成查詢
+
+**自然語言圖表查詢：**
+```
+您: 請畫出 market_cap 跟 market_cap_rank 的關係
+您: 畫出 current_price 的分佈圖
+您: 請生成相關性熱力圖
+您: 繪製市值與交易量的散點圖
+您: 畫出價格變動百分比的箱型圖
+您: 給我分析建議，哪些欄位應該一起分析
+```
+
+**CLI 命令查詢：**
+```
+您: crypto info
+您: crypto columns
+您: crypto suggest current_price market_cap
+您: crypto plot hist current_price
+您: crypto plot box price_change_percentage_24h
+您: crypto plot scatter market_cap total_volume
+```
+
+### 4. 複雜查詢（結合多個來源）
 
 ```
 您: 根據公司編碼風格，我應該如何使用 Python 類型提示？
@@ -243,12 +305,14 @@ python cli.py
 您: 解釋 API 設計原則以及它們如何符合我們的編碼標準
 ```
 
-### 4. 更好的查詢技巧
+### 5. 更好的查詢技巧
 
 - **具體明確**：「公司的遠程工作政策是什麼？」比「遠程工作」更好
 - **使用上下文**：對於公司相關問題，提及「公司」或「內部」
 - **一次一個問題**：複雜的多部分問題可能效果不佳
 - **使用自然語言**：系統理解對話式查詢
+- **圖表查詢**：可以直接說「畫出...的關係」或「繪製...的分佈」，系統會自動識別欄位和圖表類型
+- **欄位名稱**：支持英文欄位名稱（如 `market_cap`）和中文別名（如「市值」）
 
 ## 被禁止的內容
 
@@ -342,6 +406,13 @@ python cli.py
    - 回應顯示和格式化
    - 命令處理
 
+6. **數據分析模組 (`crypto_analysis.py`)**
+   - 加密貨幣數據讀取和處理
+   - 自然語言查詢解析
+   - 多種圖表類型生成（直方圖、箱型圖、散點圖、相關性熱力圖）
+   - 數據欄位說明和建議
+   - 相關性分析和統計
+
 ### 工作原理
 
 1. **查詢輸入**：用戶通過 CLI 輸入查詢
@@ -350,9 +421,10 @@ python cli.py
 4. **信息檢索**：
    - 公司查詢：搜索知識庫
    - 一般查詢：搜索網絡或使用內在知識
-5. **回應生成**：LLM 基於檢索的上下文生成回應
+   - 數據分析查詢：解析自然語言並生成圖表
+5. **回應生成**：LLM 基於檢索的上下文生成回應，或直接生成圖表文件
 6. **回應過濾**：安全過濾器檢查回應
-7. **顯示**：格式化的回應顯示給用戶
+7. **顯示**：格式化的回應顯示給用戶，包含圖表路徑（如果適用）
 
 ### RAG (Retrieval-Augmented Generation)
 
@@ -437,6 +509,17 @@ python cli.py
 - 向量數據庫首次運行較慢（後續運行更快）
 - 大型知識庫需要更長的處理時間
 
+#### 7. 圖表生成錯誤
+
+**問題**：`找不到欄位` 或 `圖表生成失敗`
+
+**解決方案**：
+- 確認數據文件 `Agents/Database/top_250_crypto_20251222.csv` 存在
+- 使用 `crypto columns` 命令查看所有可用欄位名稱
+- 確認欄位名稱拼寫正確（區分大小寫）
+- 檢查 `Agents/Database/crypto_plots/` 目錄的寫入權限
+- 確保已安裝 `matplotlib` 和 `seaborn`：`pip install matplotlib seaborn`
+
 ### 獲取幫助
 
 如果您遇到此處未涵蓋的問題：
@@ -444,17 +527,20 @@ python cli.py
 2. 確認所有安裝步驟都已遵循
 3. 確保 API 金鑰有效且有額度
 4. 檢查系統日誌（如果可用）
-5. 聯繫開發團隊或 ZURU Melon 技術支持
+
 
 ## 專案結構
 
 ```
 Agents_eng/
 ├── Agents/
-│   └── Knowledge Base/              # 公司知識庫文件
-│       ├── Coding Style.md
-│       ├── Company Policies.md
-│       └── Company Procedures & Guidelines.md
+│   ├── Knowledge Base/              # 公司知識庫文件
+│   │   ├── Coding Style.md
+│   │   ├── Company Policies.md
+│   │   └── Company Procedures & Guidelines.md
+│   └── Database/                    # 數據文件目錄
+│       ├── top_250_crypto_20251222.csv  # 加密貨幣數據集
+│       └── crypto_plots/            # 圖表輸出目錄（自動生成）
 ├── Agent_Assignment/                # 作業文檔
 │   └── Agent assignment.md
 ├── .vectordb/                       # 向量數據庫（自動生成）
@@ -462,6 +548,7 @@ Agents_eng/
 ├── config.py                        # 配置模組
 ├── rag_system.py                    # RAG 系統實現
 ├── agent.py                         # Agent 系統
+├── crypto_analysis.py               # 數據分析與圖表生成模組
 ├── web_search.py                    # 網絡搜索模組
 ├── safety_filter.py                 # 安全和合規過濾器
 ├── cli.py                           # CLI 界面
@@ -477,10 +564,6 @@ Agents_eng/
 - **English**: [README.md](README.md)
 - **繁體中文**: 本文件 (README_zh.md)
 - **詳細使用說明（繁體中文）**: [使用說明.md](使用說明.md)
-
-## 授權
-
-僅供內部使用 - ZURU Melon
 
 ## 版本信息
 
